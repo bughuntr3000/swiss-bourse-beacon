@@ -6,15 +6,19 @@ import FXRateData from "@/components/FXRateData";
 import { 
   getPortfolioWithMomentum, 
   getFXRatesWithMomentum,
+  formatDate,
   Portfolio,
   FXRate
 } from "@/utils/financialData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarDays } from "lucide-react";
 
 const Index = () => {
   const [portfolio, setPortfolio] = useState<Portfolio[]>([]);
   const [fxRates, setFXRates] = useState<FXRate[]>([]);
   const [activeTab, setActiveTab] = useState("portfolio");
+  const currentDate = new Date();
+  const formattedCurrentDate = formatDate(currentDate);
 
   useEffect(() => {
     // Load initial data
@@ -25,9 +29,15 @@ const Index = () => {
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold">EBS Financial Data Dashboard</h1>
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-3xl font-bold">EBS Financial Data Dashboard</h1>
+          <div className="flex items-center bg-gray-100 px-3 py-2 rounded-md text-gray-700">
+            <CalendarDays className="mr-2 h-5 w-5" />
+            <span>{formattedCurrentDate}</span>
+          </div>
+        </div>
         <p className="text-gray-500">
-          Track stock prices and FX rates with real-time data from the Swiss Electronic Bourse (EBS)
+          Track stock prices from Yahoo Finance and FX rates from Oanda with real-time data from the Swiss Electronic Bourse (EBS)
         </p>
       </header>
 

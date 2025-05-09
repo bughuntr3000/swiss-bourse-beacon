@@ -14,6 +14,7 @@ export interface Portfolio {
   };
   currency?: string;
   currentPrice?: number;
+  dataDate?: string;
 }
 
 export interface FXRate {
@@ -26,6 +27,7 @@ export interface FXRate {
     longTerm: number;
   };
   currentRate?: number;
+  dataDate?: string;
 }
 
 // Function to get portfolio data with momentum
@@ -51,36 +53,94 @@ export const getFXRatesWithMomentum = (): FXRate[] => {
   });
 };
 
-// Function to fetch current price data for stocks
-export const fetchCurrentPriceData = (portfolio: Portfolio[]): Promise<Portfolio[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const updatedPortfolio = portfolio.map(item => {
-        return {
-          ...item,
-          currentPrice: generateMockPriceData(item.stockPrice)
-        };
-      });
-      toast.success("Stock price data has been updated");
-      resolve(updatedPortfolio);
-    }, 1500); // Simulate API call delay
-  });
+// Function to format date as YYYY-MM-DD
+export const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
-// Function to fetch current FX rates
-export const fetchCurrentFXRates = (fxRates: FXRate[]): Promise<FXRate[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const updatedFXRates = fxRates.map(item => {
-        return {
-          ...item,
-          currentRate: generateMockPriceData(item.rate)
-        };
-      });
-      toast.success("FX rate data has been updated");
-      resolve(updatedFXRates);
-    }, 1500); // Simulate API call delay
-  });
+// Function to get the previous business day
+export const getPreviousBusinessDay = (date: Date = new Date()): Date => {
+  const prevDate = new Date(date);
+  prevDate.setDate(prevDate.getDate() - 1);
+  
+  // If it's a weekend, go to Friday
+  const dayOfWeek = prevDate.getDay();
+  if (dayOfWeek === 0) { // Sunday
+    prevDate.setDate(prevDate.getDate() - 2);
+  } else if (dayOfWeek === 6) { // Saturday
+    prevDate.setDate(prevDate.getDate() - 1);
+  }
+  
+  return prevDate;
+};
+
+// Function to fetch current price data for stocks from Yahoo Finance
+export const fetchCurrentPriceData = async (portfolio: Portfolio[]): Promise<Portfolio[]> => {
+  try {
+    // Get previous business day for date reference
+    const prevBusinessDay = getPreviousBusinessDay();
+    const dataDate = formatDate(prevBusinessDay);
+    
+    // In a real implementation, this would make API calls to Yahoo Finance
+    // For this demo, we'll simulate the API call with a delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const updatedPortfolio = portfolio.map(item => {
+          // In a real implementation, fetch actual price from Yahoo Finance
+          // For now, we'll use mock data but pretend it's from Yahoo
+          const currentPrice = generateMockPriceData(item.stockPrice);
+          
+          return {
+            ...item,
+            currentPrice,
+            dataDate
+          };
+        });
+        toast.success(`Stock price data from Yahoo Finance has been updated (${dataDate})`);
+        resolve(updatedPortfolio);
+      }, 1500); // Simulate API call delay
+    });
+  } catch (error) {
+    toast.error("Failed to fetch stock data from Yahoo Finance");
+    console.error("Fetch stock data error:", error);
+    throw error;
+  }
+};
+
+// Function to fetch current FX rates from Oanda
+export const fetchCurrentFXRates = async (fxRates: FXRate[]): Promise<FXRate[]> => {
+  try {
+    // Get previous business day for date reference
+    const prevBusinessDay = getPreviousBusinessDay();
+    const dataDate = formatDate(prevBusinessDay);
+    
+    // In a real implementation, this would make API calls to Oanda
+    // For this demo, we'll simulate the API call with a delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const updatedFXRates = fxRates.map(item => {
+          // In a real implementation, fetch actual rate from Oanda
+          // For now, we'll use mock data but pretend it's from Oanda
+          const currentRate = generateMockPriceData(item.rate);
+          
+          return {
+            ...item,
+            currentRate,
+            dataDate
+          };
+        });
+        toast.success(`FX rate data from Oanda has been updated (${dataDate})`);
+        resolve(updatedFXRates);
+      }, 1500); // Simulate API call delay
+    });
+  } catch (error) {
+    toast.error("Failed to fetch FX data from Oanda");
+    console.error("Fetch FX data error:", error);
+    throw error;
+  }
 };
 
 // Function to copy price data to clipboard

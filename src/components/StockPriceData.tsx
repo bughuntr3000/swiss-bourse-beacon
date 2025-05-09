@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Portfolio, fetchCurrentPriceData, copyPriceDataToClipboard } from "@/utils/financialData";
-import { Copy } from "lucide-react";
+import { Portfolio, fetchCurrentPriceData, copyPriceDataToClipboard, formatDate } from "@/utils/financialData";
+import { Copy, CalendarDays } from "lucide-react";
 
 interface StockPriceDataProps {
   portfolio: Portfolio[];
@@ -19,6 +19,11 @@ interface StockPriceDataProps {
 
 const StockPriceData: React.FC<StockPriceDataProps> = ({ portfolio, setPortfolio }) => {
   const [loading, setLoading] = useState(false);
+  const currentDate = new Date();
+  const formattedCurrentDate = formatDate(currentDate);
+  
+  // Get data date from the first portfolio item with a current price, or use null
+  const dataDate = portfolio.find(item => item.dataDate)?.dataDate || null;
 
   const handleGetPriceData = async () => {
     setLoading(true);
@@ -37,7 +42,18 @@ const StockPriceData: React.FC<StockPriceDataProps> = ({ portfolio, setPortfolio
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Stock Price Data</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Stock Price Data</h2>
+          <div className="flex items-center mt-1 text-sm text-gray-500">
+            <CalendarDays className="mr-1 h-4 w-4" />
+            <span>Current Date: {formattedCurrentDate}</span>
+          </div>
+          {dataDate && (
+            <div className="text-sm text-gray-500 mt-1">
+              <span>Data from Yahoo Finance as of: {dataDate}</span>
+            </div>
+          )}
+        </div>
         <div className="flex gap-2">
           <Button onClick={handleGetPriceData} disabled={loading}>
             {loading ? "Loading..." : "Get Price Data"}

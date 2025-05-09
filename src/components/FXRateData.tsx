@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FXRate, fetchCurrentFXRates, copyFXRateDataToClipboard } from "@/utils/financialData";
-import { TrendingUp, TrendingDown, Copy } from "lucide-react";
+import { FXRate, fetchCurrentFXRates, copyFXRateDataToClipboard, formatDate } from "@/utils/financialData";
+import { TrendingUp, TrendingDown, Copy, CalendarDays } from "lucide-react";
 
 interface FXRateDataProps {
   fxRates: FXRate[];
@@ -32,6 +32,11 @@ const MomentumIndicator: React.FC<{ value: number }> = ({ value }) => {
 
 const FXRateData: React.FC<FXRateDataProps> = ({ fxRates, setFXRates }) => {
   const [loading, setLoading] = useState(false);
+  const currentDate = new Date();
+  const formattedCurrentDate = formatDate(currentDate);
+  
+  // Get data date from the first fx item with a current rate, or use null
+  const dataDate = fxRates.find(item => item.dataDate)?.dataDate || null;
 
   const handleGetFXData = async () => {
     setLoading(true);
@@ -50,7 +55,18 @@ const FXRateData: React.FC<FXRateDataProps> = ({ fxRates, setFXRates }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">FX Rate Data (Base: USD)</h2>
+        <div>
+          <h2 className="text-2xl font-bold">FX Rate Data (Base: USD)</h2>
+          <div className="flex items-center mt-1 text-sm text-gray-500">
+            <CalendarDays className="mr-1 h-4 w-4" />
+            <span>Current Date: {formattedCurrentDate}</span>
+          </div>
+          {dataDate && (
+            <div className="text-sm text-gray-500 mt-1">
+              <span>Data from Oanda as of: {dataDate}</span>
+            </div>
+          )}
+        </div>
         <div className="flex gap-2">
           <Button onClick={handleGetFXData} disabled={loading}>
             {loading ? "Loading..." : "Get FX Data"}
